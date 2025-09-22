@@ -1,8 +1,9 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { PackingService } from './packing.service';
 import { PackOrdersDto } from './dto/pack-orders.dto';
-import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiResponse, ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { PackedOrderDto } from './dto/packed-response.dto';
+import { AuthGuard } from '@nestjs/passport';
 
 const example = {
   orders: [
@@ -17,11 +18,13 @@ const example = {
 };
 
 @ApiTags('packing')
+@ApiBearerAuth()
 @Controller('packing')
 export class PackingController {
   constructor(private readonly packingService: PackingService) {}
 
   @Post()
+  @UseGuards(AuthGuard('jwt'))
   @ApiOperation({ summary: 'Calcula o empacotamento para uma lista de pedidos' })
   @ApiBody({ description: 'Pedidos a serem empacotados', type: PackOrdersDto, examples: { 'flat-format': { value: example } } })
   @ApiResponse({ status: 201, description: 'Pedidos empacotados', type: [PackedOrderDto] })
