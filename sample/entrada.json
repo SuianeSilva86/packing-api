@@ -1,0 +1,13 @@
+
+{
+	"orders": [
+		{
+			"id": "order-sample-1",
+			"products": [
+				{ "id": "p1", "height": 10, "width": 10, "length": 10 },
+				{ "id": "p2", "height": 20, "width": 20, "length": 20 }
+			]
+		}
+	]
+}
+
