@@ -4,7 +4,6 @@ export type Dimension = {
   length: number;
 };
 
-// Product uses a flat format for dimensions as requested
 export type Product = {
   id: string;
   name?: string;

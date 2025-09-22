@@ -1,0 +1,17 @@
+
+[
+	{
+		"orderId": "order-sample-1",
+		"boxes": [
+			{
+				"boxId": "box1",
+				"boxName": "Caixa 1",
+				"products": [
+					{ "id": "p1" },
+					{ "id": "p2" }
+				]
+			}
+		]
+	}
+]
+

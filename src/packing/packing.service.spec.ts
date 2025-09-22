@@ -26,7 +26,7 @@ describe('PackingService', () => {
     const result = service.packOrders(orders as any);
     expect(result).toHaveLength(1);
     expect(result[0].orderId).toBe('order1');
-    // all products must be assigned to boxes
+
     const assignedProducts = result[0].boxes.flatMap((b) => b.products.map((p) => p.id));
     expect(assignedProducts.sort()).toEqual(['p1', 'p2'].sort());
   });
