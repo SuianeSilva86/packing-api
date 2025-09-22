@@ -166,22 +166,11 @@ Observações:
 - A linha `version:` no `docker-compose.yml` é apenas informativa; o Compose v2 a ignora.
 - `.dockerignore` está configurado para não copiar `sample/` para a imagem — por isso normalmente usamos o `sample` localmente para testar via `Invoke-RestMethod`.
 
-## Pontos para comentar em entrevista
-- Por que NestJS: modularidade, injeção de dependência, padrões corporativos e facilidade para testes.
-- Separação de responsabilidades: DTOs (validação), controller (HTTP), service (regra de negócio).
-- Trade-offs: a solução atual prioriza previsibilidade e explicabilidade; há espaço para otimizações como FFD ou heurísticas 3D.
-
-## Próximos passos sugeridos
-- Implementar heurísticas melhores (First Fit Decreasing, algoritmos guillotine ou shelf) para otimizar o número de caixas.
-- Adicionar testes e2e para cobrir integração controller+validation+service.
-- Considerar limites de peso/fragilidade/empilhamento se exigido.
-- Adicionar exemplos de resposta no Swagger.
-
 ---
 
 ## Ambiente e segurança
 
-Este projeto usa variáveis de ambiente para segredos. Um arquivo `.env.example` está incluído com placeholders. Não comite seu `.env` real.
+Este projeto usa variáveis de ambiente para segredos. Um arquivo `.env.example` está incluído com placeholders.
 
 1) Copie `.env.example` para `.env`:
 
@@ -196,7 +185,7 @@ Copy-Item -Path .\.env.example -Destination .\.env -Force
 $b = New-Object 'System.Byte[]' 32; (New-Object System.Security.Cryptography.RNGCryptoServiceProvider).GetBytes($b); [System.Convert]::ToBase64String($b)
 ```
 
-3) Credenciais do admin. Em produção prefira um hash bcrypt pré-computado. Para gerar o hash usando Node (one-liner):
+3) Credenciais do admin.Para gerar o hash usando Node (one-liner):
 
 ```powershell
 node -e "const bcrypt=require('bcryptjs'); console.log(bcrypt.hashSync(process.argv[1]||'YourPass',10))" -- "SuaSenhaForteAdmin"
@@ -220,10 +209,3 @@ ADMIN_PASSWORD_HASH=
 npm run start:dev
 # abra http://localhost:3000/docs
 ```
-
-Notas de segurança:
-- Em produção, armazene segredos em um gerenciador de segredos (AWS Secrets Manager, Azure Key Vault, etc.).
-- Não comite o `.env` para o controle de versão; mantenha apenas `.env.example` no repositório.
-- Ao usar `ADMIN_PASSWORD_HASH`, garanta que o hash foi gerado com o mesmo salt rounds (10) utilizado pela aplicação.
-
-
