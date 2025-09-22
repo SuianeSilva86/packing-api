@@ -24,7 +24,7 @@
 
 ## Packing API
 
-Projeto de exemplo para prova técnica: API que calcula o empacotamento de pedidos em caixas disponíveis.
+API que calcula o empacotamento de pedidos em caixas disponíveis.
 
 ## Resumo rápido
 Micro-serviço em Node.js com NestJS que recebe uma lista de pedidos (formato achatado: cada produto traz height/width/length) e retorna, para cada pedido, quais caixas foram usadas e quais produtos foram colocados em cada caixa.
