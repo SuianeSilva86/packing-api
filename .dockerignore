@@ -4,3 +4,7 @@ npm-debug.log*
 .gitignore
 .DS_Store
 coverage
+dist
+.vscode
+.env
+sample

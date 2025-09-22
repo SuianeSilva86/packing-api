@@ -131,6 +131,44 @@ npm run start:dev
 # abrir http://localhost:3000/docs
 ```
 
+## Rodando com Docker
+Segue um passo-a-passo para rodar a API com Docker usando PowerShell (na raiz do projeto):
+
+Pré-requisito: Docker Desktop instalado e em execução.
+
+1) Build e subir com docker-compose (foreground):
+```powershell
+docker compose up --build
+```
+
+ou em background (detached):
+```powershell
+docker compose up --build -d
+```
+
+2) Checar containers e logs:
+```powershell
+docker ps
+docker compose logs -f
+```
+
+3) Testar o endpoint com o `sample/entrada.json` (PowerShell):
+```powershell
+$body = Get-Content -Raw .\sample\entrada.json
+Invoke-RestMethod -Uri http://localhost:3000/packing -Method Post -ContentType 'application/json' -Body $body | ConvertTo-Json
+```
+
+4) Parar e remover containers:
+```powershell
+docker compose down
+```
+
+Observações:
+- Se der erro de conexão com o daemon do Docker, abra o Docker Desktop e aguarde o status "Docker is running".
+- A linha `version:` no `docker-compose.yml` é apenas informativa; o Compose v2 a ignora.
+- `.dockerignore` está configurado para não copiar `sample/` para a imagem — por isso normalmente usamos o `sample` localmente para testar via `Invoke-RestMethod`.
+
+
 ## Pontos para comentar em entrevista
 - Por que NestJS: modularidade, DI, padrões corporativos, permite testes fáceis.
 - Separação de responsabilidades: DTOs (validação), controller (HTTP), service (regra de negócio).
