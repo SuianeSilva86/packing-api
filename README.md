@@ -102,7 +102,7 @@ Caixas disponíveis (cm):
   - Para cada caixa, varre produtos restantes e insere qualquer produto que caiba na caixa (permitindo rotação)
   - Se algum produto não couber em nenhuma caixa, retorna erro (BadRequest)
 
-Este método foi escolhido por ser simples, determinístico e fácil de explicar. Empacotamento 3D ótimo é um problema NP-hard; a solução atual é prática para a prova técnica e pode ser melhorada futuramente.
+Este método foi escolhido por ser simples, determinístico e fácil de explicar. Empacotamento 3D ótimo é um problema NP-hard.
 
 ## Validação e erros
 - DTOs validam tipos e obrigatoriedade via `class-validator`.
