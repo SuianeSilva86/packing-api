@@ -25,74 +25,124 @@
 
 [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
 
-## Project setup
+# Packing API
 
-```bash
-$ npm install
+Projeto de exemplo para prova técnica: API que calcula o empacotamento de pedidos em caixas disponíveis.
+
+## Resumo rápido
+Micro-serviço em Node.js com NestJS que recebe uma lista de pedidos (formato achatado: cada produto traz height/width/length) e retorna, para cada pedido, quais caixas foram usadas e quais produtos foram colocados em cada caixa.
+
+## Tecnologias
+- Node.js + TypeScript
+- NestJS (módulos, DI)
+- class-validator / class-transformer (validação DTOs)
+- @nestjs/swagger (documentação OpenAPI)
+- Jest (testes unitários)
+
+As versões usadas estão no `package.json`.
+
+## Arquitetura e organização
+- Controller: expõe o endpoint HTTP (POST /packing)
+- Service: lógica de domínio (algoritmo de empacotamento)
+- DTOs/Types: contrato e validação (entrada/saída)
+- Swagger: documentos e exemplos expostos em `/docs`
+
+Estrutura principal:
+```
+src/
+  packing/
+    dto/
+      pack-orders.dto.ts     # DTOs de request
+      packed-response.dto.ts # DTOs de response para Swagger
+    types/
+      models.ts              # Tipos de domínio
+    packing.service.ts      # Lógica de empacotamento
+    packing.controller.ts   # Endpoint POST /packing
+    packing.module.ts       # Módulo
+  common/
+    swagger.ts              # Configuração do Swagger
+  app.module.ts
 ```
 
-## Compile and run the project
-
-```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+## API
+POST /packing
+- Request (formato achatado):
+```json
+{
+  "orders": [
+    {
+      "id": "order1",
+      "products": [
+        { "id": "p1", "height": 10, "width": 10, "length": 10 },
+        { "id": "p2", "height": 20, "width": 20, "length": 20 }
+      ]
+    }
+  ]
+}
 ```
 
-## Run tests
-
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+- Response (exemplo):
+```json
+[
+  {
+    "orderId": "order1",
+    "boxes": [
+      { "boxId": "box1", "boxName": "Caixa 1", "products": [ { "id": "p1" } ] },
+      { "boxId": "box3", "boxName": "Caixa 3", "products": [ { "id": "p2" } ] }
+    ]
+  }
+]
 ```
 
-## Deployment
+Caixas disponíveis (cm):
+- Caixa 1: 30 x 40 x 80
+- Caixa 2: 50 x 50 x 40
+- Caixa 3: 50 x 80 x 60
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+## Algoritmo de empacotamento (implementado)
+- Abordagem: greedy determinístico com checagem de encaixe por rotação
+  - Ordena caixas por volume crescente
+  - Para cada caixa, varre produtos restantes e insere qualquer produto que caiba na caixa (permitindo rotação)
+  - Se algum produto não couber em nenhuma caixa, retorna erro (BadRequest)
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+Justificativa: solução simples, determinística e facilmente justificável em entrevista. Empacotamento 3D ótimo é um problema NP-hard; essa solução é funcional e fácil de explicar.
 
+## Validação e erros
+- DTOs validam tipos e obrigatoriedade via `class-validator`.
+- Erros do serviço são lançados como `BadRequestException` com mensagens claras.
+
+## Swagger
+- Documentação disponível em `/docs` (configurada em `src/common/swagger.ts`)
+- O endpoint POST /packing contém um exemplo do formato achatado e os schemas de request/response via `@ApiProperty`.
+
+## Testes
+- Unit tests com Jest:
+  - `src/packing/packing.service.spec.ts` cobre caminho feliz e caso de produto grande demais.
+- Rode:
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+npm install
+npm test
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+## Como rodar localmente
+```powershell
+npm install
+npm run start:dev
+# abrir http://localhost:3000/docs
+```
 
-## Resources
+## Pontos para comentar em entrevista
+- Por que NestJS: modularidade, DI, padrões corporativos, permite testes fáceis.
+- Separação de responsabilidades: DTOs (validação), controller (HTTP), service (regra de negócio).
+- Trade-offs: escolhi simplicidade do algoritmo para garantir previsibilidade; argumento para evolução futura (FFD, heurísticas 3D).
+- Qualidade: testes unitários e documentação Swagger (muito importante para APIs).
 
-Check out a few resources that may come in handy when working with NestJS:
+## Próximos passos sugeridos
+- Implementar heurísticas melhores (First Fit Decreasing, algoritmos guillotine ou shelf) para otimizar número de caixas.
+- Adicionar testes e2e para cobrir integração controller+validation+service.
+- Considerar limites de peso/fragilidade/empilhamento se exigido.
+- Adicionar exemplos de resposta no Swagger.
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+---
 
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+Se quiser, eu já atualizo o README com trechos de fala prontos para entrevista (pontuações) e um slide curto. Quer que eu gere isso agora?
