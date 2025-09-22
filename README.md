@@ -21,11 +21,8 @@
   <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
   [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
 
-## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
-
-# Packing API
+## Packing API
 
 Projeto de exemplo para prova técnica: API que calcula o empacotamento de pedidos em caixas disponíveis.
 
@@ -34,8 +31,8 @@ Micro-serviço em Node.js com NestJS que recebe uma lista de pedidos (formato ac
 
 ## Tecnologias
 - Node.js + TypeScript
-- NestJS (módulos, DI)
-- class-validator / class-transformer (validação DTOs)
+- NestJS (módulos, injeção de dependência)
+- class-validator / class-transformer (validação de DTOs)
 - @nestjs/swagger (documentação OpenAPI)
 - Jest (testes unitários)
 
@@ -83,7 +80,7 @@ POST /packing
 
 - Response (exemplo):
 ```json
-[
+[ 
   {
     "orderId": "order1",
     "boxes": [
@@ -100,25 +97,26 @@ Caixas disponíveis (cm):
 - Caixa 3: 50 x 80 x 60
 
 ## Algoritmo de empacotamento (implementado)
-- Abordagem: greedy determinístico com checagem de encaixe por rotação
+- Abordagem: algoritmo guloso (greedy) determinístico com checagem de encaixe por rotação
   - Ordena caixas por volume crescente
   - Para cada caixa, varre produtos restantes e insere qualquer produto que caiba na caixa (permitindo rotação)
   - Se algum produto não couber em nenhuma caixa, retorna erro (BadRequest)
 
-Justificativa: solução simples, determinística e facilmente justificável em entrevista. Empacotamento 3D ótimo é um problema NP-hard; essa solução é funcional e fácil de explicar.
+Este método foi escolhido por ser simples, determinístico e fácil de explicar. Empacotamento 3D ótimo é um problema NP-hard; a solução atual é prática para a prova técnica e pode ser melhorada futuramente.
 
 ## Validação e erros
 - DTOs validam tipos e obrigatoriedade via `class-validator`.
 - Erros do serviço são lançados como `BadRequestException` com mensagens claras.
 
 ## Swagger
-- Documentação disponível em `/docs` (configurada em `src/common/swagger.ts`)
-- O endpoint POST /packing contém um exemplo do formato achatado e os schemas de request/response via `@ApiProperty`.
+- Documentação disponível em `/docs` (configurada em `src/common/swagger.ts`).
+- O endpoint POST /packing contém um exemplo do formato e os schemas de request/response via `@ApiProperty`.
 
 ## Testes
-- Unit tests com Jest:
-  - `src/packing/packing.service.spec.ts` cobre caminho feliz e caso de produto grande demais.
-- Rode:
+- Testes unitários com Jest:
+  - `src/packing/packing.service.spec.ts` cobre o caminho feliz e o caso de produto grande demais.
+
+Executar testes:
 ```bash
 npm install
 npm test
@@ -132,7 +130,7 @@ npm run start:dev
 ```
 
 ## Rodando com Docker
-Segue um passo-a-passo para rodar a API com Docker usando PowerShell (na raiz do projeto):
+Passo a passo para rodar a API com Docker usando PowerShell (na raiz do projeto):
 
 Pré-requisito: Docker Desktop instalado e em execução.
 
@@ -164,71 +162,68 @@ docker compose down
 ```
 
 Observações:
-- Se der erro de conexão com o daemon do Docker, abra o Docker Desktop e aguarde o status "Docker is running".
+- Se ocorrer erro de conexão com o daemon do Docker, abra o Docker Desktop e aguarde o status "Docker is running".
 - A linha `version:` no `docker-compose.yml` é apenas informativa; o Compose v2 a ignora.
 - `.dockerignore` está configurado para não copiar `sample/` para a imagem — por isso normalmente usamos o `sample` localmente para testar via `Invoke-RestMethod`.
 
-
 ## Pontos para comentar em entrevista
-- Por que NestJS: modularidade, DI, padrões corporativos, permite testes fáceis.
+- Por que NestJS: modularidade, injeção de dependência, padrões corporativos e facilidade para testes.
 - Separação de responsabilidades: DTOs (validação), controller (HTTP), service (regra de negócio).
-- Trade-offs: escolhi simplicidade do algoritmo para garantir previsibilidade; argumento para evolução futura (FFD, heurísticas 3D).
-- Qualidade: testes unitários e documentação Swagger (muito importante para APIs).
+- Trade-offs: a solução atual prioriza previsibilidade e explicabilidade; há espaço para otimizações como FFD ou heurísticas 3D.
 
 ## Próximos passos sugeridos
-- Implementar heurísticas melhores (First Fit Decreasing, algoritmos guillotine ou shelf) para otimizar número de caixas.
+- Implementar heurísticas melhores (First Fit Decreasing, algoritmos guillotine ou shelf) para otimizar o número de caixas.
 - Adicionar testes e2e para cobrir integração controller+validation+service.
 - Considerar limites de peso/fragilidade/empilhamento se exigido.
 - Adicionar exemplos de resposta no Swagger.
 
 ---
 
-Se quiser, eu já atualizo o README com trechos de fala prontos para entrevista (pontuações) e um slide curto. Quer que eu gere isso agora?
+## Ambiente e segurança
 
-## Environment & Security (how to create .env)
+Este projeto usa variáveis de ambiente para segredos. Um arquivo `.env.example` está incluído com placeholders. Não comite seu `.env` real.
 
-This project uses environment variables for secrets. A `.env.example` file is included with placeholders. Never commit your real `.env`.
-
-1) Copy `.env.example` to `.env`:
+1) Copie `.env.example` para `.env`:
 
 ```powershell
 Copy-Item -Path .\.env.example -Destination .\.env -Force
 ```
 
-2) Generate a strong `JWT_SECRET` (PowerShell):
+2) Gerar um `JWT_SECRET` forte (PowerShell):
 
 ```powershell
-#$jwtSecret: 32 random bytes, Base64
+# Gera 32 bytes aleatórios e mostra em Base64
 $b = New-Object 'System.Byte[]' 32; (New-Object System.Security.Cryptography.RNGCryptoServiceProvider).GetBytes($b); [System.Convert]::ToBase64String($b)
 ```
 
-3) Choose admin credentials. For production prefer a precomputed bcrypt hash. To generate a hash using Node (one-liner):
+3) Credenciais do admin. Em produção prefira um hash bcrypt pré-computado. Para gerar o hash usando Node (one-liner):
 
 ```powershell
-node -e "const bcrypt=require('bcryptjs'); console.log(bcrypt.hashSync(process.argv[1]||'YourPass',10))" -- "YourStrongAdminPassword"
+node -e "const bcrypt=require('bcryptjs'); console.log(bcrypt.hashSync(process.argv[1]||'YourPass',10))" -- "SuaSenhaForteAdmin"
 ```
 
-Then paste the produced hash into `ADMIN_PASSWORD_HASH` in `.env`. If you prefer to use a plain password for development, set `ADMIN_PASSWORD` (>=8 chars) and leave `ADMIN_PASSWORD_HASH` empty.
+Cole o hash produzido em `ADMIN_PASSWORD_HASH` no `.env`. Se preferir usar uma senha em texto no desenvolvimento, defina `ADMIN_PASSWORD` (>=8 caracteres) e deixe `ADMIN_PASSWORD_HASH` vazio.
 
-4) Example `.env` (dev):
+4) Exemplo de `.env` (desenvolvimento):
 
 ```properties
-JWT_SECRET=<paste-generated-base64-secret>
+JWT_SECRET=<cole_aqui_o_secret_gerado>
 JWT_EXPIRES_IN=1h
 ADMIN_USERNAME=admin
-ADMIN_PASSWORD=YourDevPassword123!
+ADMIN_PASSWORD=SuaSenhaDeDev123!
 ADMIN_PASSWORD_HASH=
 ```
 
-5) Start the app (PowerShell):
+5) Iniciar a aplicação (PowerShell):
 
 ```powershell
 npm run start:dev
-# then open http://localhost:3000/docs
+# abra http://localhost:3000/docs
 ```
 
-Security notes:
-- In production, store secrets in a secrets manager (AWS Secrets Manager, Azure Key Vault, etc.).
-- Do not commit `.env` to source control; `.env.example` is safe to commit.
-- When using `ADMIN_PASSWORD_HASH`, ensure the hash was generated with the same salt rounds (10) used by the app.
+Notas de segurança:
+- Em produção, armazene segredos em um gerenciador de segredos (AWS Secrets Manager, Azure Key Vault, etc.).
+- Não comite o `.env` para o controle de versão; mantenha apenas `.env.example` no repositório.
+- Ao usar `ADMIN_PASSWORD_HASH`, garanta que o hash foi gerado com o mesmo salt rounds (10) utilizado pela aplicação.
+
 
